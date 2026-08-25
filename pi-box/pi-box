@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+project_dir="$(pwd -P)"
+
+# To copy skills:
+# docker run --rm -v pi-box-home:/data -v $HOME:/host-dir alpine cp -r /host-dir/.agents/skills/cpp-coding-standards/ /data/.agents/skills
+exec docker run --rm -it --init \
+  --read-only \
+  --tmpfs /tmp:rw,nosuid,nodev,size=2g \
+  --shm-size=1g \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges \
+  --pids-limit=1024 \
+  -e HOME="$HOME" \
+  -e TERM="${TERM:-xterm-256color}" \
+  -e COLORTERM="${COLORTERM:-truecolor}" \
+  --mount "type=volume,src=pi-box-home,dst=$HOME" \
+  --mount "type=bind,src=$project_dir,dst=$project_dir" \
+  --mount "type=bind,src=$HOME/dev/agents/devvm,dst=$HOME/devvm" \
+  --workdir "$project_dir" \
+  local/pi:0.84.1 "$@"
