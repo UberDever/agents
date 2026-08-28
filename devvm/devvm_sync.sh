@@ -19,8 +19,8 @@ sync  explicitly installs the current top-level Git snapshot plus staged,
 run   executes in the existing VM checkout; it never syncs.
 reset removes this VM checkout, its state, and its build caches. It preserves
       the shared append-only Git object pool used by other workspaces.
-branches reports local uberdever/* branches across sibling clickhouse workspaces.
-         Remote-tracking refs are deliberately excluded.
+branches reports local branches containing morlovsky or uberdever across
+         sibling clickhouse workspaces. Remote-tracking refs are excluded.
 EOF
 }
 die() { echo "[devvm_sync] error: $*" >&2; exit 1; }
@@ -389,18 +389,23 @@ report_branches() {
     local -a branches
     parent=$(dirname "$repo_root")
 
-    echo "Local custom branches only (refs/heads/uberdever/*); fetched remote refs are excluded."
+    echo "Local branches containing morlovsky or uberdever; fetched remote refs are excluded."
     echo "Branches are ordered by their latest commit. ACTIVE identifies the branch currently used by that workspace."
     for workspace in "$parent"/clickhouse*; do
         [[ -d $workspace ]] || continue
         name=$(basename "$workspace")
         [[ $name =~ ^clickhouse([0-9]+)?$ ]] || continue
         git -C "$workspace" rev-parse --is-inside-work-tree >/dev/null 2>&1 || continue
-        mapfile -t branches < <(git -C "$workspace" for-each-ref --format='%(refname:short)' --sort=-committerdate refs/heads/uberdever/)
+        mapfile -t branches < <(
+            git -C "$workspace" for-each-ref --format='%(refname:short)' --sort=-committerdate refs/heads/ |
+                while IFS= read -r branch; do
+                    [[ $branch == *morlovsky* || $branch == *uberdever* ]] && printf '%s\n' "$branch"
+                done
+        )
         ((${#branches[@]})) || continue
 
         active=$(git -C "$workspace" symbolic-ref -q --short HEAD || true)
-        [[ $active == uberdever/* ]] || active=""
+        [[ $active == *morlovsky* || $active == *uberdever* ]] || active=""
         head=$(git -C "$workspace" rev-parse --short HEAD)
         printf '\n%s  HEAD %s\n' "$workspace" "$head"
         [[ -n $active ]] && printf '  ACTIVE  %s\n' "$active"

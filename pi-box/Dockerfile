@@ -12,6 +12,7 @@ RUN groupmod --gid "$PI_GID" node \
  && apt-get install -y --no-install-recommends \
       bash ca-certificates curl file git jq less \
       make g++ python3 python3-pip procps ripgrep libnotify-bin gh \
+      cmake clang clang-format \
  && rm -rf /var/lib/apt/lists/* \
  && python3 -m pip install --no-cache-dir --break-system-packages uv \
  && UV_TOOL_DIR=/opt/uv/tools UV_TOOL_BIN_DIR=/usr/local/bin \
