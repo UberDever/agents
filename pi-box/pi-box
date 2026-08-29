@@ -18,7 +18,7 @@ exec docker run --rm -it --init \
   -e COLORTERM="${COLORTERM:-truecolor}" \
   --mount "type=volume,src=pi-box-home,dst=$HOME" \
   --mount "type=bind,src=$project_dir,dst=$project_dir" \
-  --mount "type=bind,src=$HOME/dev/agents/devvm,dst=$HOME/devvm" \
+  --mount "type=bind,src=$HOME/dev/agents/devvm,dst=$HOME/agents/devvm" \
   --mount "type=bind,src=$agents_dir/skills,dst=$HOME/.agents/skills,readonly" \
   --mount "type=bind,src=$agents_dir/AGENTS.md,dst=$HOME/.pi/agent/AGENTS.md,readonly" \
   --workdir "$project_dir" \
