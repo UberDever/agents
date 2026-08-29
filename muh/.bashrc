@@ -1,7 +1,7 @@
 
-PATH=${PATH}:/home/${USER}/.local/bin
-PATH=${PATH}:/home/${USER}/apps/bin
-PATH=${PATH}:/home/${USER}/apps/nvim
+export PATH=${PATH}:/home/${USER}/.local/bin
+export PATH=${PATH}:/home/${USER}/apps/bin
+export PATH=${PATH}:/home/${USER}/apps/nvim/bin
 
 eval "$(fzf --bash)"
 
