@@ -6,12 +6,13 @@ ARG PI_UID=1000
 ARG PI_GID=1000
 ARG PI_HOME=/home/pi
 ARG MEMSEARCH_VERSION=0.4.13
+ARG PI_VERSION=0.84.4
 
 # update:
 # docker build -t local/pi:latest - <<'EOF'
 # FROM local/pi:latest
 # USER root
-# RUN npm --prefix /usr/local install -g --ignore-scripts --min-release-age=0 @earendil-works/pi-coding-agent@0.84.4
+# RUN npm --prefix /usr/local install -g --ignore-scripts --min-release-age=0 @earendil-works/pi-coding-agent@"$PI_VERSION"
 # USER 1000:1000
 # EOF
 
@@ -29,7 +30,7 @@ RUN groupmod --gid "$PI_GID" node \
       uv tool install --force "memsearch[onnx]==${MEMSEARCH_VERSION}" \
  && HOME="$PI_HOME" memsearch config set embedding.provider onnx \
  && npm install -g --ignore-scripts \
-      @earendil-works/pi-coding-agent@0.84.1 \
+      @earendil-works/pi-coding-agent@"$PI_VERSION" \
  && chown -R "$PI_UID:$PI_GID" "$PI_HOME"
 
 COPY entrypoint.sh /usr/local/bin/pi-entrypoint

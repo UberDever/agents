@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Run an arbitrary command inside the pi-box container, with the same mounts and
+# hardening `pi-box` uses. Lets any harness on the host reach the tooling that is
+# installed only in the image (memsearch, uv, gh, cmake, clang-format, ...) and
+# share the pi-box-home volume with pi itself.
+#
+#   box memsearch search "layout" --top-k 3
+#   box --entrypoint pi-entrypoint            # what pi-box does
+set -euo pipefail
+
+# The image's ENTRYPOINT is pi itself, so a plain command would be handed to pi as a
+# prompt. Default to no entrypoint and let the argv be the command.
+entrypoint=""
+if [ "${1:-}" = "--entrypoint" ]; then
+  entrypoint="$2"
+  shift 2
+fi
+
+project_dir="$(pwd -P)"
+agents_dir="$HOME/dev/agents/agents"
+
+# Interactive only when the caller actually has a terminal; agent harnesses do not,
+# and `-t` without one makes docker fail.
+tty_flags="-i"
+if [ -t 0 ] && [ -t 1 ]; then
+  tty_flags="-it"
+fi
+
+exec docker run --rm $tty_flags --init \
+  --entrypoint "$entrypoint" \
+  --read-only \
+  --tmpfs /tmp:rw,nosuid,nodev,size=2g \
+  --shm-size=1g \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges \
+  --pids-limit=1024 \
+  -e HOME="$HOME" \
+  -e TERM="${TERM:-xterm-256color}" \
+  -e COLORTERM="${COLORTERM:-truecolor}" \
+  --mount "type=volume,src=pi-box-home,dst=$HOME" \
+  --mount "type=bind,src=$project_dir,dst=$project_dir" \
+  --mount "type=bind,src=$HOME/dev/agents/devvm,dst=$HOME/agents/devvm" \
+  --mount "type=bind,src=$agents_dir/skills,dst=$HOME/.agents/skills,readonly" \
+  --mount "type=bind,src=$agents_dir/AGENTS.md,dst=$HOME/.pi/agent/AGENTS.md,readonly" \
+  --workdir "$project_dir" \
+  local/pi:latest "$@"

@@ -1,25 +1,4 @@
 #!/usr/bin/env bash
+# Start pi in the sandbox. All container plumbing lives in `box`.
 set -euo pipefail
-
-project_dir="$(pwd -P)"
-agents_dir="$HOME/dev/agents/agents"
-
-# To copy skills:
-# docker run --rm -v pi-box-home:/data -v $HOME:/host-dir alpine cp -r /host-dir/.agents/skills/cpp-coding-standards/ /data/.agents/skills
-exec docker run --rm -it --init \
-  --read-only \
-  --tmpfs /tmp:rw,nosuid,nodev,size=2g \
-  --shm-size=1g \
-  --cap-drop=ALL \
-  --security-opt=no-new-privileges \
-  --pids-limit=1024 \
-  -e HOME="$HOME" \
-  -e TERM="${TERM:-xterm-256color}" \
-  -e COLORTERM="${COLORTERM:-truecolor}" \
-  --mount "type=volume,src=pi-box-home,dst=$HOME" \
-  --mount "type=bind,src=$project_dir,dst=$project_dir" \
-  --mount "type=bind,src=$HOME/dev/agents/devvm,dst=$HOME/agents/devvm" \
-  --mount "type=bind,src=$agents_dir/skills,dst=$HOME/.agents/skills,readonly" \
-  --mount "type=bind,src=$agents_dir/AGENTS.md,dst=$HOME/.pi/agent/AGENTS.md,readonly" \
-  --workdir "$project_dir" \
-  local/pi:latest "$@"
+exec "$(dirname "$(readlink -f "$0")")/box" --entrypoint pi-entrypoint "$@"
