@@ -1,6 +1,6 @@
 ---
 name: devvm-sync
-description: Use the local devvm sync workflow for ClickHouse development when Codex, Claude, or CodeAssistant needs to hand off build/test commands to the user, avoid running heavy ClickHouse tests locally, or explicitly run/iterate tests on the development VM. Trigger on requests mentioning devvm, devvm sync, remote ClickHouse tests, VM builds, `~/sync/devvm`, `/home/uberdever/dev/sync/devvm_sync.sh`, or workflows where the agent should edit locally while the user syncs and tests manually.
+description: Use the local devvm sync workflow for ClickHouse development when Codex, Claude, or CodeAssistant needs to hand off build/test commands to the user, avoid running heavy ClickHouse tests locally, or explicitly run/iterate tests on the development VM. Trigger on requests mentioning devvm, devvm sync, remote ClickHouse tests, VM builds, `~/dev/agents/devvm/devvm_sync.sh`, or workflows where the agent should edit locally while the user syncs and tests manually.
 ---
 
 # Devvm Sync
@@ -10,7 +10,7 @@ description: Use the local devvm sync workflow for ClickHouse development when C
 Use the canonical script from the local repository root:
 
 ```bash
-/home/uberdever/dev/sync/devvm_sync.sh
+~/dev/agents/devvm/devvm_sync.sh
 ```
 
 For ClickHouse:
@@ -34,8 +34,8 @@ Normal handoff:
 
 ```bash
 export REMOTE_DIR=/mnt/devssd/dev/clickhouse
-/home/uberdever/dev/sync/devvm_sync.sh sync
-/home/uberdever/dev/sync/devvm_sync.sh run -- \
+~/dev/agents/devvm/devvm_sync.sh sync
+~/dev/agents/devvm/devvm_sync.sh run -- \
   python3 -m ci.praktika run "Build (amd_binary)" --param build
 ```
 
@@ -46,7 +46,7 @@ orders branches by latest commit, so fetched
 remote-tracking branches cannot be mistaken for local development branches:
 
 ```bash
-/home/uberdever/dev/sync/devvm_sync.sh branches
+~/dev/agents/devvm/devvm_sync.sh branches
 ```
 
 `run` streams foreground output and writes its latest VM log to:
@@ -82,7 +82,7 @@ python -m ci.praktika run "Stateless tests (amd_debug, parallel)" \
 Run them through devvm without implicit sync, for example:
 
 ```bash
-/home/uberdever/dev/sync/devvm_sync.sh run -- \
+~/dev/agents/devvm/devvm_sync.sh run -- \
   python3 -m ci.praktika run "Build (amd_binary)" --param build
 ```
 
@@ -158,8 +158,8 @@ checkout:
 
 ```bash
 export REMOTE_DIR=/mnt/devssd/dev/clickhouse
-/home/uberdever/dev/sync/devvm_sync.sh reset
-/home/uberdever/dev/sync/devvm_sync.sh sync
+~/dev/agents/devvm/devvm_sync.sh reset
+~/dev/agents/devvm/devvm_sync.sh sync
 ```
 
 `reset` deletes only that VM workspace checkout, state, and build caches. It
