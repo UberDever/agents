@@ -1,3 +1,5 @@
+# build: 
+# docker build --build-arg PI_UID="$(id -u)" --build-arg PI_GID="$(id -g)" --build-arg PI_HOME="$HOME" -t local/pi:latest .
 FROM node:24-bookworm-slim
 
 ARG PI_UID=1000
