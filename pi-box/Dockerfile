@@ -7,6 +7,14 @@ ARG PI_GID=1000
 ARG PI_HOME=/home/pi
 ARG MEMSEARCH_VERSION=0.4.13
 
+# update:
+# docker build -t local/pi:latest - <<'EOF'
+# FROM local/pi:latest
+# USER root
+# RUN npm --prefix /usr/local install -g --ignore-scripts --min-release-age=0 @earendil-works/pi-coding-agent@0.84.4
+# USER 1000:1000
+# EOF
+
 RUN groupmod --gid "$PI_GID" node \
  && usermod --uid "$PI_UID" --gid "$PI_GID" \
       --home "$PI_HOME" --move-home node \
@@ -33,7 +41,7 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
-COPY yandex-internal-root-ca/YandexInternalRootCA.crt /usr/local/share/ca-certificates/YandexInternalRootCA.crt
+# COPY yandex-internal-root-ca/YandexInternalRootCA.crt /usr/local/share/ca-certificates/YandexInternalRootCA.crt
 
 RUN update-ca-certificates --fresh \
  && test -s /etc/ssl/certs/ca-certificates.crt
