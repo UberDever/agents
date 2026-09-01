@@ -14,7 +14,7 @@ RUN groupmod --gid "$PI_GID" node \
       --home "$PI_HOME" --move-home node \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
-      bash ca-certificates curl file git jq less \
+      bash ca-certificates curl file git jq less vim-tiny \
       make g++ python3 python3-pip procps ripgrep libnotify-bin gh \
       cmake clang clang-format ssh \
  && rm -rf /var/lib/apt/lists/* \
