@@ -18,8 +18,16 @@ fi
 
 project_dir="$(pwd -P)"
 agents_dir="$HOME/dev/agents/agents"
-host_message_dir="/tmp/pi-box"
-mkdir -p "$host_message_dir"
+message_args=()
+if [ "$entrypoint" = "pi-entrypoint" ]; then
+  # Match Pi's external-editor convention: one private /tmp directory per run.
+  host_message_dir="$(mktemp -d /tmp/pi-editor-XXXXXXXX)"
+  message_args=(
+    -e PI_MESSAGE_DIR=/host-message
+    -e PI_MESSAGE_HOST_DIR="$host_message_dir"
+    --mount "type=bind,src=$host_message_dir,dst=/host-message"
+  )
+fi
 
 # Interactive only when the caller actually has a terminal; agent harnesses do not,
 # and `-t` without one makes docker fail.
@@ -39,10 +47,9 @@ exec docker run --rm $tty_flags --init \
   -e HOME="$HOME" \
   -e TERM="${TERM:-xterm-256color}" \
   -e COLORTERM="${COLORTERM:-truecolor}" \
-  -e PI_MESSAGE_DIR="$project_dir/.pi-host-tmp" \
+  "${message_args[@]}" \
   --mount "type=volume,src=pi-box-home,dst=$HOME" \
   --mount "type=bind,src=$project_dir,dst=$project_dir" \
-  --mount "type=bind,src=$host_message_dir,dst=$project_dir/.pi-host-tmp" \
   --mount "type=bind,src=$HOME/dev/agents/devvm,dst=$HOME/dev/agents/devvm" \
   --mount "type=bind,src=$agents_dir/skills,dst=$HOME/.agents/skills,readonly" \
   --mount "type=bind,src=$agents_dir/AGENTS.md,dst=$HOME/.pi/agent/AGENTS.md,readonly" \
