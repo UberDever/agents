@@ -19,6 +19,9 @@ For ClickHouse:
 export REMOTE_DIR=/mnt/devssd/dev/clickhouse
 ```
 
+For a disposable task worktree such as `~/dev/clickhouse-<task>`, do not set
+`REMOTE_DIR`: the local basename maps to the same basename on the VM.
+
 `sync` is explicit. **`run` never syncs.**
 
 ## Interface
@@ -27,7 +30,6 @@ export REMOTE_DIR=/mnt/devssd/dev/clickhouse
 devvm_sync.sh sync [remote-dir]
 devvm_sync.sh run [remote-dir] -- <command>
 devvm_sync.sh reset [remote-dir]
-devvm_sync.sh branches
 ```
 
 Normal handoff:
@@ -37,16 +39,6 @@ export REMOTE_DIR=/mnt/devssd/dev/clickhouse
 ~/dev/agents/devvm/devvm_sync.sh sync
 ~/dev/agents/devvm/devvm_sync.sh run -- \
   python3 -m ci.praktika run "Build (amd_binary)" --param build
-```
-
-`branches` scans sibling `clickhouse`, `clickhouse2`, ... local workspaces and
-reports only local `refs/heads/uberdever/*` branches. It assigns each listed
-branch one global number, marks the active branch for each workspace, and
-orders branches by latest commit, so fetched
-remote-tracking branches cannot be mistaken for local development branches:
-
-```bash
-~/dev/agents/devvm/devvm_sync.sh branches
 ```
 
 `run` streams foreground output and writes its latest VM log to:
@@ -104,29 +96,30 @@ A successful `sync` installs:
 - the exact local top-level `HEAD` SHA as a shallow VM repository;
 - selected local branch or detached HEAD only, not mirrored history/refs;
 - top-level staged, unstaged, and untracked non-ignored overlays;
-- direct, normal Git submodules under `.git/modules` when committed gitlinks
-  change.
+- every direct gitlink as a normal shallow VM submodule, using shared local and
+  VM object pools rather than initializing task-worktree submodules.
 
 It deliberately does **not**:
 
 - push to or fetch main-repository origins;
-- copy local submodule edits;
-- clean stale VM files, ignored build caches, or stale VM untracked files.
+- copy local submodule edits.
 
-Untracked overlays use quiet SSH `rsync` without `--delete`: unchanged files
-are not retransmitted, and file names/content are not printed by devvm.
+Every sync hard-resets and exhaustively cleans VM source state. It preserves only
+`ci/tmp/build` and `ci/tmp/sccache`, then applies the exact local overlay.
+Untracked overlays use quiet SSH `rsync`; file names/content are not printed.
 
 The VM must have normal direct submodules for Praktika/CMake. Nested vendor
 submodules may remain uninitialized, matching ClickHouse build jobs.
 
-Local direct submodules and `.gitmodules` must be clean. Sync fails rather
-than copying local submodule state.
+Local task-worktree submodules may remain uninitialized. Any initialized direct
+submodule must be clean. `.gitmodules` and gitlink overlays are unsupported;
+sync fails clearly rather than copying local submodule state.
 
 ## Object Pool and Workspaces
 
-Git objects are stored in an append-only VM object pool derived from the local
-`origin` URL. Multiple workspace directories from the same origin reuse those
-immutable objects.
+Top-level and submodule Git objects are stored in append-only VM pools derived
+from origin/submodule identities. Multiple task workspaces reuse those immutable
+objects while retaining independent normal checkouts.
 
 Each workspace retains independent:
 
@@ -134,12 +127,11 @@ Each workspace retains independent:
 - submodule worktrees and metadata;
 - build caches and devvm state.
 
-Thus `clickhouse`, `clickhouse2`, and `clickhouse3` can sync independently.
+Thus multiple `clickhouse-<task>` worktrees can sync independently.
 Do not sync a workspace while a build in that same workspace is running.
 
-Separate-workspace sync and build are safe. Two Praktika builds are currently
-not safe in parallel on one VM because Praktika uses the VM-global Docker name
-`praktika`.
+Separate-workspace sync and build are isolated. Parallel builds still compete
+for VM CPU, memory, disk, and Docker capacity.
 
 ## Submodule Compatibility and Repair
 
@@ -153,8 +145,7 @@ sync removes only that broken VM module/cache and reinitializes it normally.
 
 ## Migration and Reset
 
-For migration from the older worktree/mirror implementation, or a broken VM
-checkout:
+For migration from an older sync protocol, or a broken VM checkout:
 
 ```bash
 export REMOTE_DIR=/mnt/devssd/dev/clickhouse
@@ -163,7 +154,8 @@ export REMOTE_DIR=/mnt/devssd/dev/clickhouse
 ```
 
 `reset` deletes only that VM workspace checkout, state, and build caches. It
-preserves the shared object pool and never changes the local repository. If a
+preserves shared top-level/submodule object pools and never changes the local
+repository. If a
 Docker job left root-owned `__pycache__` or pytest-xdist `_gw*_instance`
 directories, reset falls back to a root Docker container to remove the
 workspace contents; reset is therefore explicitly destructive by design.
@@ -175,8 +167,8 @@ repositories locally, Git requires double force:
 git clean -ffd -- contrib
 ```
 
-Normal sync intentionally does not delete stale VM untracked files; clean
-those explicitly or use `reset` when required.
+Normal sync deletes stale VM source files while preserving only the two build
+cache paths. Use `reset` to discard those caches too.
 
 ## Managed VM `dev` tmux Session
 
