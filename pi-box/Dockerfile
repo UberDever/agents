@@ -26,6 +26,19 @@ RUN groupmod --gid "$PI_GID" node \
       @earendil-works/pi-coding-agent@"$PI_VERSION" \
  && chown -R "$PI_UID:$PI_GID" "$PI_HOME"
 
+# Upstream build instructions: https://github.com/tsoding/tatr
+ARG TATR_COMMIT=9b0d752d992c024875882937eb1a0705ba4ba7fb
+RUN git init /tmp/tatr \
+ && git -C /tmp/tatr remote add origin https://github.com/tsoding/tatr.git \
+ && git -C /tmp/tatr fetch --depth 1 origin "$TATR_COMMIT" \
+ && git -C /tmp/tatr checkout --detach FETCH_HEAD \
+ && cd /tmp/tatr \
+ && cc -o nob nob.c \
+ && ./nob \
+ && install -m 755 build/tatr /usr/local/bin/tatr \
+ && cd / \
+ && rm -rf /tmp/tatr
+
 COPY entrypoint.sh /usr/local/bin/pi-entrypoint
 RUN chmod 755 /usr/local/bin/pi-entrypoint
 
