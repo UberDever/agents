@@ -21,8 +21,8 @@ tasks/
   <HUID>/TASK.md       # one folder per task; attachments beside TASK.md
 ```
 
-HUID = UTC timestamp `YYYYMMDD-HHMMSS`, optional suffix `-[a-zA-Z0-9-]*`.
-On collision wait a second and retry. Never renumber or rename a task.
+HUID = UTC timestamp `YYYYMMDD-HHMMSS`. The optional suffix `-[a-zA-Z0-9-]*` is for per-person IDs
+in a team, not for collisions: on collision take the next free second. Never renumber a task once referenced.
 
 ## TASK.md
 
@@ -73,6 +73,32 @@ priority lt 50            compare: lt le gt ge eq ne
 ```
 
 Don't use square brackets inside tag names.
+
+## Tasks as project memory
+
+Where a project keeps its record in `tasks/`, tasks are the source of truth for design work,
+as important as the code. `docs/` holds user-facing docs. There is no separate memory folder.
+
+- A task states current knowledge as a plain list, not quotes or transcripts:
+  `- Decision (user, YYYY-MM-DD): ...`, `- Rejected: ...`, `- Open: ...`, `- [fact] ...`.
+- Provenance on every claim: `(user)` ruled or stated; `(agent)` finding or proposal, not ruled;
+  `(user+agent)` jointly confirmed. Kind where it helps: `[fact]`, `[assumption]`, `[direction]`.
+- Never delete a claim. Supersede in place: `~~old claim~~ superseded by <ruling> (date)`.
+- Epics carry the `epic` tag. Sub-items that are not tasks on their own go in the epic's `items.md`.
+- Session artifacts (notes, dialogues, drafts) go into the folder of the task the session followed.
+  Longer session notes are dated files there, `YYYY-MM-DD.md`.
+- Docs and code reference tasks by HUID instead of carrying TODOs.
+
+Recall and indexing use memsearch with the project's own collection, set once in `.memsearch.toml`:
+
+```
+box memsearch config set milvus.collection <project> --project
+box memsearch index tasks/ docs/
+box memsearch search "<query>" --top-k 5
+```
+
+Here `box` is `~/dev/agents/pi-box/box` on the host. Never use the shared default collection.
+Treat search hits as hints and verify against code and docs. Reindex after changing tasks.
 
 ## Discipline
 

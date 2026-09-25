@@ -1,11 +1,12 @@
 ---
 name: memory
-description: Recall and distill persistent project memory stored in .memsearch/memory/ (dated markdown, semantically indexed). Use at the start of design discussions, when past decisions/rationale/debugging history might be relevant, when the user references earlier work, or at the end of a substantive session to record decisions. Also triggered by /skill:memory [recall QUERY | distill].
+description: Recall and distill persistent project memory stored as dated markdown (by default in .memsearch/memory/; a project may specify its own location), semantically indexed. Use at the start of design discussions, when past decisions/rationale/debugging history might be relevant, when the user references earlier work, or at the end of a substantive session to record decisions. Also triggered by /skill:memory [recall QUERY | distill].
 ---
 
 # Project memory
 
-Memory = dated markdown files in `.memsearch/memory/` (source of truth; git-tracked unless project instructions keep it external).
+Memory = dated markdown files, by default in `.memsearch/memory/` (source of truth; git-tracked unless project instructions keep it external).
+Project instructions may specify other locations; they win over the defaults in this skill.
 `memsearch` CLI provides hybrid semantic+keyword search over them. The vector index is
 a disposable cache — never treat it as the data.
 
@@ -18,7 +19,9 @@ name using letters, digits, and underscores, starting with a letter or underscor
 (e.g. `vetochka`). Do not use the shared default collection for project memory.
 
 The memory root is normally the repository root, with notes in
-`.memsearch/memory/`. If user/project instructions specify an external artifact
+`.memsearch/memory/`. A project may name different note locations and index paths
+(for example, dated notes inside task folders, indexing `tasks/` and `docs/`); then
+write notes and index exactly there. If user/project instructions specify an external artifact
 root (such as ClickHouse), keep both notes and `.memsearch.toml` there instead;
 follow its collection naming rule and do not add external memory to the PR.
 Always run configuration, indexing, search, expansion, and stats from this same
@@ -90,8 +93,8 @@ Use the box prefix for these command forms when running from the host.
 
 ## Distill (end of substantive session, or on request)
 
-1. Append to `.memsearch/memory/YYYY-MM-DD.md` (today's date; create if missing) a
-   section:
+1. Append to `.memsearch/memory/YYYY-MM-DD.md`, or to the dated note location the
+   project specifies (today's date; create if missing), a section:
 
    ```markdown
    ## <topic> (HH:MM)
@@ -109,6 +112,6 @@ Use the box prefix for these command forms when running from the host.
    No play-by-play, no code listings (reference files/commits instead).
 4. Contradicts an earlier entry? Do not delete old one; mark it
    `~~superseded~~ by <today's entry>` in place.
-5. Re-index: `memsearch index .memsearch/memory/`.
+5. Re-index: `memsearch index .memsearch/memory/`, or the project's index paths.
 6. For repository-local memory, remind the user to commit the memory file and
    project config with related changes. Keep external memory/config out of the PR.
