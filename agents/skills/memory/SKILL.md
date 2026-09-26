@@ -21,7 +21,8 @@ name using letters, digits, and underscores, starting with a letter or underscor
 The memory root is normally the repository root, with notes in
 `.memsearch/memory/`. A project may name different note locations and index paths
 (for example, dated notes inside task folders, indexing `tasks/` and `docs/`); then
-write notes and index exactly there. If user/project instructions specify an external artifact
+write notes and index exactly there. Never index a project's archive of retired artifacts;
+grep it only as a last resort. If user/project instructions specify an external artifact
 root (such as ClickHouse), keep both notes and `.memsearch.toml` there instead;
 follow its collection naming rule and do not add external memory to the PR.
 Always run configuration, indexing, search, expansion, and stats from this same
