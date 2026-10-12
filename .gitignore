@@ -1,0 +1,22 @@
+# Python runtime caches.
+__pycache__/
+*.py[cod]
+
+# Machine-local skill installation metadata and generated copies.
+/agents/.skill-lock.json
+/agents/skills/.generated/
+/agents/skills_journal.json
+
+# Internal-company integrations remain local.
+/agents/skills/infra/
+/pi-box/yandex-internal-root-ca/
+
+# Session contents and Codex state are private local artifacts.
+/pi-session-handoffs/raw/
+/pi-session-handoffs/handoffs/
+/pi-session-handoffs/transcripts/
+/pi-session-handoffs/codex_rollout_backups/
+/pi-session-handoffs/INDEX.md
+/pi-session-handoffs/manifest.json
+/pi-session-handoffs/codex_import_manifest.json*
+/pi-session-handoffs/*.sqlite*
