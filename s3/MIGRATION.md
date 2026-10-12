@@ -45,11 +45,12 @@ Distribution — memory lives where its subject lives:
 | Kind | Home | Access |
 |------|------|--------|
 | Project-specific (decisions, design history, gotchas) | `<project>/.memsearch/memory/` | default: collection derived from project dir, isolated per project |
-| Cross-project durable (lessons, patterns, tooling) | commons repo (`~/dev/agents/.memsearch/memory/`) | `memsearch index <commons-dir> --collection commons`; from any project: `memsearch search "..." --collection commons` |
+| Cross-project durable (lessons, patterns, tooling) | originating project's memory | search that project's collection; relocate only when explicitly requested |
 | Personal style / preferences | `~/.pi/agent/AGENTS.md` | not memory — standing instructions, always in context |
 
-No copies between collections. Project note turns out generic → *move* to commons,
-leave one-line pointer in the project's daily note.
+No automatic copies or promotion between collections. If the user requests a move,
+leave a one-line pointer in the originating project's daily note. This agents
+repository uses collection `agents`; it is not a shared fallback for other projects.
 
 ## 2. Skills
 
