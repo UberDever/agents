@@ -26,7 +26,7 @@ Start with fast, cheap evidence:
 
 - Run `git status --short` before editing. Treat existing changes as user-owned unless proven otherwise.
 - Use `rg`, `rg --files`, and targeted file reads before broad scans.
-- If repository has a `tags` ctags file, use it for fast exact symbol lookup before broader text searches; confirm definitions and references in source because tags may be stale or incomplete.
+- Follow the shared existing-symbol-index rule and use `lookup-tags` when a ctags index exists, including the external ClickHouse artifact location. Confirm candidates in current source; tags may be stale or incomplete.
 - Search for existing symbols, error messages, tests, config names, and similar features before adding new code.
 - Inspect nearby call sites, base classes, interfaces, factories, registration points, and tests.
 - Prefer build files, `compile_commands.json`, CMake targets, test manifests, or CI config over assumptions about how code is built.

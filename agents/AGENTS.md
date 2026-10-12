@@ -23,6 +23,19 @@ Before claiming implementation work is complete, use
 Follow the repository's existing conventions when they conflict with
 generic style guidance.
 
+## Existing symbol indexes
+
+- At the start of code navigation, check for an existing ctags index at the
+  project-configured location, the ClickHouse external artifact directory when
+  applicable, and the repository root (`tags`). Resolve the checkout root first;
+  do not recursively hunt for indexes.
+- If an index exists, use `lookup-tags` for symbol-definition lookup before broad
+  source searches. If the skill is not in the catalog, read
+  `~/dev/agents/agents/skills/lookup-tags/SKILL.md` directly.
+- Treat tags as navigation hints: confirm matches in current source, use `rg`
+  for text/usages and misses, and use semantic tooling for precise references.
+  Do not generate or refresh indexes merely to satisfy this rule.
+
 ## Shared boxed tools
 
 - All host agents use `~/dev/agents/pi-box/box <tool> <args>` for user-approved
