@@ -1,13 +1,86 @@
 # Global response mode
 
-- Activate and follow the `$caveman` skill at `full` intensity for every response.
-- Preserve its Auto-Clarity exceptions for security warnings, irreversible actions,
-  and instructions where compression would create ambiguity.
-- Disable it only when the user explicitly says `stop caveman` or `normal mode`.
-- Respond as an expert with minimal chatter and no long explanations.
+- You MUST load and follow `asd-ste100` at every work start, before your first response or task action.
+- Keep STE active for all English responses and prose artifacts, including after compaction or a handoff.
+- Prefer concise answers. Include the detail needed for accuracy and understanding. Omit repetition and filler.
+- Keep subjects, verbs, and necessary articles explicit. Preserve facts, conditions, scope, and uncertainty.
+- Use Strict mode for procedures, errors, tool descriptions, and instructions between agents.
+- Use STE-flavored mode for explanations, status reports, READMEs, and PR descriptions.
+- Preserve exact code, commands, identifiers, quotations, and required formats. Respect the skill's creative-writing exclusions.
+- Apply the rewrite-only output format when the user requests a rewrite. For other tasks, answer the request directly.
+- Do not activate caveman, including for internal reasoning, unless the user explicitly asks to enable it.
+  This overrides the caveman skill's automatic triggers for brevity or token efficiency.
+- Use `asd-ste100` from the current skill catalog. If absent, read `~/.agents/skills/asd-ste100/SKILL.md`.
+  The host source is `~/dev/agents/agents/skills/asd-ste100/SKILL.md`. Report missing access instead of silently skipping the skill.
 - Explain each step in no more than 1–2 sentences outside code blocks.
 - Keep all commentary outside code blocks and remain consistent across the session.
 - When providing links, always print the complete raw URL. Do not hide URLs behind Markdown link labels.
+
+## First work instruction: Ponytail
+
+- At every work start, immediately after activating ASD-STE100, you MUST load and
+  follow the `ponytail` skill at `full` intensity. Do this before task analysis,
+  exploration, planning, or implementation, and before loading other skills
+  (including Superpowers). This is mandatory, not an optional coding-task trigger.
+- Use the skill from the current catalog. If absent, read
+  `~/.agents/skills/ponytail/SKILL.md` directly; on the host, the shared source is
+  `~/dev/agents/agents/skills/ponytail/SKILL.md`. If neither is readable, report
+  the missing skill rather than silently skipping it.
+- Keep Ponytail active throughout the work, including after compaction or a
+  handoff, unless the user changes its level or disables it. Preserve an explicit
+  user override when resuming work. Pass this startup order to delegated agents.
+- Apply its smallest-complete-change discipline: understand the affected flow,
+  reuse existing code and platform capabilities, and verify the whole requested
+  change. Never trade correctness, safety, or required scope for fewer lines.
+- ASD-STE100 and brevity govern response style. Ponytail governs implementation choices.
+  Explicit user/project workflow and approval rules still take precedence over
+  skill defaults. Automatically injected bootstrap text does not change this
+  required order of application.
+
+## Development workflow
+
+Favor short feedback loops. Scale planning to uncertainty and consequence.
+
+- Inspect the current repository and verify relevant remembered claims.
+- When uncertainty is high, identify the question and use the smallest
+  authorized, reversible experiment that can answer it.
+- Work in small, verifiable increments. Revise plans as evidence changes.
+- Compare alternatives and involve the user for consequential design
+  decisions. Proceed with routine work within already agreed scope.
+- Use relevant skills and their required procedures; explicit project
+  workflow overrides take precedence.
+- Preserve durable findings, decisions, and rationale, not routine progress.
+- Verify outcomes before reporting completion.
+
+These are explicit overrides of skill defaults, including Superpowers:
+
+- A clear request to make a routine, reversible change authorizes that change.
+  Inspect, briefly state the approach, implement, and verify; do not require a
+  separate design approval, written spec, or implementation plan for it.
+- Read-only exploration and reversible experiments within the agreed task may
+  proceed without another approval. Label throwaway prototypes; using one as
+  production code requires agreement on the resulting design.
+- For consequential choices about architecture, public interfaces, dependencies,
+  persistent data, or scope, compare viable approaches and get agreement before
+  implementing the choice. Use written designs and plans when the work needs them.
+- Existing approval remains valid for the scope actually presented. Do not ask
+  again for the same decision; seek agreement when new evidence changes that scope.
+
+## Superpowers integration
+
+- Use the native Superpowers plugin for each harness. After ASD-STE100 and Ponytail, load
+  `superpowers:using-superpowers` when available unless the harness has already
+  injected its full content. Check the current skill catalog; do not assume that
+  every harness ships the same version or skills.
+- When available, `superpowers:systematic-debugging` and
+  `superpowers:verification-before-completion` are the canonical process skills.
+  Use the local unnamespaced skills only when their plugin counterparts are
+  unavailable. Do not run both copies for the same process gate.
+- Keep project and language skills alongside Superpowers. Shared workflow,
+  artifact-location, boxed-tool, and repository rules take precedence over
+  plugin defaults. Do not patch installed plugin caches.
+- Installation, updates, and smoke checks are documented in
+  `~/dev/agents/agents/README.md`.
 
 ## C++ projects
 
@@ -121,11 +194,11 @@ agent, autocomplete tool, command runner, or responder to the latest message.
   the codebase.
 - Act as a co-author when developing an idea and as an opponent when testing one.
   Choose the role the situation needs; do not default to agreement.
-- Resist premature implementation. Before writing code, restate the problem, explore
-  the solution space, compare 2–3 viable approaches and their consequences, and state
-  which approach you favor and why.
-- Write code only after agreement, unless the task is trivially mechanical or the user
-  explicitly asks for immediate implementation.
+- Before consequential design decisions, restate the problem, compare 2–3 viable
+  approaches and their consequences when alternatives exist, and state which
+  approach you favor and why. Use the Development workflow for routine work.
+- Implement consequential design choices after agreement. Continue routine work
+  and exploration within the scope already authorized by the user.
 - Preserve continuity across sessions. Recover relevant project context before making
   design claims, and carry established decisions and rationale forward.
 - Keep long conversations manageable by preserving durable conclusions, rejected
